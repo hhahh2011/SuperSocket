@@ -166,6 +166,10 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Protocol\SuperSocket.Protocol.Net40.csproj">
+      <Project>{88C9312E-7520-4F6B-BF25-30DA5990D270}</Project>
+      <Name>SuperSocket.Protocol.Net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
