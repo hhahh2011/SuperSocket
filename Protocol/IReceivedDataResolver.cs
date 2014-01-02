@@ -7,6 +7,8 @@ namespace SuperSocket.Protocol
 {
     public interface IReceivedDataResolver
     {
-        void Process(ArraySegment<byte> rawData);
+        ResolveState Process(ArraySegment<byte> rawData);
+
+        string ErrorMessage { get; }
     }
 }
