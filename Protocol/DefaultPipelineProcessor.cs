@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.Protocol
 {
-    public class ReceivedDataResolver<TPackageInfo> : IReceivedDataResolver
+    public class DefaultPipelineProcessor<TPackageInfo> : IPipelineProcessor
         where TPackageInfo : IPackageInfo
     {
         private IPackageHandler<TPackageInfo> m_PackageHandler;
@@ -16,13 +16,13 @@ namespace SuperSocket.Protocol
 
         private int m_MaxPackageLength;
 
-        public ReceivedDataResolver(IPackageHandler<TPackageInfo> packageHandler)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler)
             : this(packageHandler, 0)
         {
 
         }
 
-        public ReceivedDataResolver(IPackageHandler<TPackageInfo> packageHandler, int maxPackageLength)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, int maxPackageLength)
         {
             m_PackageHandler = packageHandler;
             m_ReceivedData = new ReceivedData();
@@ -46,7 +46,7 @@ namespace SuperSocket.Protocol
                 handler(this, EventArgs.Empty);
         }
 
-        public virtual ResolveState Process(ArraySegment<byte> raw)
+        public virtual ProcessState Process(ArraySegment<byte> raw)
         {
             m_ReceivedData.Current = raw;
             m_ReceivedData.PackageData.Add(raw);
@@ -58,20 +58,14 @@ namespace SuperSocket.Protocol
                 var packageInfo = m_ReceiveFilter.Filter(m_ReceivedData, out rest);
 
                 if (m_ReceiveFilter.State == FilterState.Error)
-                {
-                    ErrorMessage = "The ReceiveFilter is in Error state.";
-                    return ResolveState.Error;
-                }
+                    return ProcessState.Error;
 
                 if (m_MaxPackageLength > 0)
                 {
                     var length = m_ReceivedData.Total - rest;
 
                     if (length > m_MaxPackageLength)
-                    {
-                        ErrorMessage = string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length);
-                        return ResolveState.Error;
-                    }
+                        throw new Exception(string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length));
                 }
 
                 //Receive continue
@@ -85,7 +79,7 @@ namespace SuperSocket.Protocol
 
                     //Because the current buffer is cached, so new buffer is required for receiving
                     FireNewReceiveBufferRequired();
-                    return ResolveState.Pending;
+                    return ProcessState.Pending;
                 }
 
                 m_ReceiveFilter.Reset();
@@ -103,13 +97,11 @@ namespace SuperSocket.Protocol
                 {
                     m_ReceivedData.Current = new ArraySegment<byte>();
                     FireNewReceiveBufferRequired();
-                    return ResolveState.Found;
+                    return ProcessState.Found;
                 }
 
                 PushResetData(raw, rest);
             }
         }
-
-        public string ErrorMessage { get; protected set; }
     }
 }

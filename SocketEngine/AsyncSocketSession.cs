@@ -12,6 +12,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
+using SuperSocket.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
@@ -39,9 +40,9 @@ namespace SuperSocket.SocketEngine
             get { return AppSession.Logger; }
         }
 
-        public override void Initialize(IAppSession appSession)
+        public override void Initialize(IAppSession appSession, IPipelineProcessor dataProcessor)
         {
-            base.Initialize(appSession);
+            base.Initialize(appSession, dataProcessor);
 
             //Initialize SocketAsyncProxy for receiving
             SocketAsyncProxy.Initialize(this);

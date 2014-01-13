@@ -188,7 +188,7 @@ namespace SuperSocket.SocketBase
             SessionID = socketSession.SessionID;
             m_Connected = true;
 
-            socketSession.Initialize(this);
+            socketSession.Initialize(this, null);
 
             OnInit();
         }

@@ -175,7 +175,7 @@ namespace SuperSocket.SocketEngine
             else
                 socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, socketAsyncProxy, true);
 
-            socketSession.Initialize(session);
+            socketSession.Initialize(session, session.SocketSession.PipelineProcessor);
             socketSession.Start();
         }
 

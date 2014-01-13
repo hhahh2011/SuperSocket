@@ -13,6 +13,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
@@ -33,7 +34,14 @@ namespace SuperSocket.SocketEngine
     {
         public IAppSession AppSession { get; private set; }
 
+        protected IPipelineProcessor DataProcessor { get; private set; }
+
         protected readonly object SyncRoot = new object();
+
+        IPipelineProcessor ISocketSession.PipelineProcessor
+        {
+            get { return DataProcessor; }
+        }
 
         //0x00 0x00 0x00 0x00
         //1st byte: Closed(Y/N) - 0x01
@@ -114,9 +122,10 @@ namespace SuperSocket.SocketEngine
             SessionID = sessionID;
         }
 
-        public virtual void Initialize(IAppSession appSession)
+        public virtual void Initialize(IAppSession appSession, IPipelineProcessor dataProcessor)
         {
             AppSession = appSession;
+            DataProcessor = dataProcessor;
             Config = appSession.Config;
             SyncSend = Config.SyncSend;
             m_SendingQueuePool = ((SocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;

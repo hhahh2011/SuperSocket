@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.Protocol
 {
-    public enum ResolveState : byte
+    public enum ProcessState : byte
     {
         Found,
         Pending,

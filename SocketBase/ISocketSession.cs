@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Net.Sockets;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.Protocol;
 
 namespace SuperSocket.SocketBase
 {
@@ -70,7 +71,8 @@ namespace SuperSocket.SocketBase
         /// Initializes the specified app session.
         /// </summary>
         /// <param name="appSession">The app session.</param>
-        void Initialize(IAppSession appSession);
+        /// <param name="dataProcessor">The pipeline data processor.</param>
+        void Initialize(IAppSession appSession, IPipelineProcessor dataProcessor);
 
         /// <summary>
         /// Starts this instance.
@@ -129,13 +131,12 @@ namespace SuperSocket.SocketBase
         /// </summary>
         IAppSession AppSession { get; }
 
-
         /// <summary>
-        /// Gets the original receive buffer offset.
+        /// Gets the pipeline processor.
         /// </summary>
         /// <value>
-        /// The original receive buffer offset.
+        /// The pipeline processor.
         /// </value>
-        int OrigReceiveOffset { get; }
+        IPipelineProcessor PipelineProcessor { get; }
     }
 }

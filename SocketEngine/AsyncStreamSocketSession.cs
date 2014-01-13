@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
+using SuperSocket.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
@@ -135,11 +136,16 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            int offsetDelta;
-
             try
             {
-                offsetDelta = AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
+                var state = DataProcessor.Process(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead));
+
+                if (state == ProcessState.Error)
+                {
+                    AppSession.Logger.Error("Protocol error");
+                    this.Close(CloseReason.ProtocolError);
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -148,15 +154,10 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
+            OnReceiveStarted();
+
             try
             {
-                if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
-                    throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
-
-                m_Offset = SocketAsyncProxy.OrigOffset + offsetDelta;
-                m_Length = Config.ReceiveBufferSize - offsetDelta;
-
-                OnReceiveStarted();
                 m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
             }
             catch (Exception exc)
