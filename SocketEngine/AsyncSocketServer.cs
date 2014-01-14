@@ -188,11 +188,6 @@ namespace SuperSocket.SocketEngine
                 var proxy = socketSession.SocketAsyncProxy;
                 proxy.Reset();
 
-                if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
-                {
-                    proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
-                }
-
                 if (m_ReadWritePool != null)
                     m_ReadWritePool.Push(proxy);
             }

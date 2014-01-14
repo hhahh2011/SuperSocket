@@ -188,7 +188,7 @@ namespace SuperSocket.SocketBase
             SessionID = socketSession.SessionID;
             m_Connected = true;
 
-            socketSession.Initialize(this, null);
+            socketSession.Initialize(this, new DefaultPipelineProcessor<TRequestInfo>(this, AppServer.Config.MaxRequestLength));
 
             OnInit();
         }

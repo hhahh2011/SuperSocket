@@ -136,23 +136,7 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            try
-            {
-                var state = DataProcessor.Process(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead));
-
-                if (state == ProcessState.Error)
-                {
-                    AppSession.Logger.Error("Protocol error");
-                    this.Close(CloseReason.ProtocolError);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogError("Protocol error", ex);
-                this.Close(CloseReason.ProtocolError);
-                return;
-            }
+            ProcessReceivedData(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead));
 
             OnReceiveStarted();
 
@@ -354,11 +338,6 @@ namespace SuperSocket.SocketEngine
         ILog ILoggerProvider.Logger
         {
             get { return AppSession.Logger; }
-        }
-
-        public override int OrigReceiveOffset
-        {
-            get { return SocketAsyncProxy.OrigOffset; }
         }
 
         private bool m_NegotiateResult = false;

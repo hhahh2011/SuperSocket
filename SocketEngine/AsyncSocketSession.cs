@@ -110,26 +110,13 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        private void StartReceive(SocketAsyncEventArgs e)
-        {
-            StartReceive(e, 0);
-        }
 
-        private void StartReceive(SocketAsyncEventArgs e, int offsetDelta)
+        private void StartReceive(SocketAsyncEventArgs e)
         {
             bool willRaiseEvent = false;
 
             try
             {
-                if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
-                    throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
-
-                var predictOffset = SocketAsyncProxy.OrigOffset + offsetDelta;
-
-                if (e.Offset != predictOffset)
-                {
-                    e.SetBuffer(predictOffset, Config.ReceiveBufferSize - offsetDelta);
-                }
 
                 if (IsInClosingOrClosed)
                     return;
@@ -224,31 +211,15 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            int offsetDelta;
-
-            try
-            {
-                offsetDelta = this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
-            }
-            catch (Exception exc)
-            {
-                LogError("Protocol error", exc);
-                this.Close(CloseReason.ProtocolError);
-                return;
-            }
+            ProcessReceivedData(new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred));
 
             //read the next block of data sent from the client
-            StartReceive(e, offsetDelta);
+            StartReceive(e);
         }      
 
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
-        }
-
-        public override int OrigReceiveOffset
-        {
-            get { return SocketAsyncProxy.OrigOffset; }
         }
     }
 }

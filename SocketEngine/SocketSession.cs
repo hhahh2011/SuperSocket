@@ -570,8 +570,6 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public abstract int OrigReceiveOffset { get; }
-
         protected virtual bool IsIgnorableSocketError(int socketErrorCode)
         {
             if (socketErrorCode == 10004 //Interrupted
@@ -618,6 +616,27 @@ namespace SuperSocket.SocketEngine
                 return false;
 
             return IsIgnorableSocketError(socketErrorCode);
+        }
+
+        internal void ProcessReceivedData(ArraySegment<byte> data)
+        {
+            try
+            {
+                var state = DataProcessor.Process(data);
+
+                if (state == ProcessState.Error)
+                {
+                    AppSession.Logger.Error("Protocol error");
+                    this.Close(CloseReason.ProtocolError);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError("Protocol error", ex);
+                this.Close(CloseReason.ProtocolError);
+                return;
+            }
         }
     }
 }

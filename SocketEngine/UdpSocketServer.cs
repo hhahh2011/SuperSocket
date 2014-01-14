@@ -182,13 +182,9 @@ namespace SuperSocket.SocketEngine
                 Interlocked.Increment(ref m_ConnectionCount);
                 socketSession.Closed += OnSocketSessionClosed;
                 socketSession.Start();
+            }
 
-                appSession.ProcessRequest(receivedData, 0, receivedData.Length, false);
-            }
-            else //Existing session
-            {
-                appSession.ProcessRequest(receivedData, 0, receivedData.Length, false);
-            }
+            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(new ArraySegment<byte>(receivedData));
         }
 
         void OnSocketSessionClosed(ISocketSession socketSession, CloseReason closeReason)
