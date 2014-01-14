@@ -12,7 +12,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
-using SuperSocket.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {

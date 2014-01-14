@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Diagnostics.Contracts;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     public class StringPackageInfo : IPackageInfo<string>
     {

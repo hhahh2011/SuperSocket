@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     public abstract class FixedHeaderReceiveFilter<TPackageInfo> : FixedSizeReceiveFilter<TPackageInfo>
         where TPackageInfo : IPackageInfo

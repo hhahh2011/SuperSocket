@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     /// <summary>
     /// Filter state enum

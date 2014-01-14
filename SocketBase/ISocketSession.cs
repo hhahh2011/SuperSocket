@@ -7,7 +7,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Net.Sockets;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase
 {

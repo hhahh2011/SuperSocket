@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Protocol;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     public interface IPackageResolver<out TPackageInfo>
         where TPackageInfo : IPackageInfo

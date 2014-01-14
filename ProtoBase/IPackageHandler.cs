@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Protocol;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     /// <summary>
     /// Package handler interface
