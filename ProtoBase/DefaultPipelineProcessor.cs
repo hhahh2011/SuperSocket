@@ -16,15 +16,16 @@ namespace SuperSocket.ProtoBase
 
         private int m_MaxPackageLength;
 
-        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler)
-            : this(packageHandler, 0)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter)
+            : this(packageHandler, receiveFilter, 0)
         {
 
         }
 
-        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, int maxPackageLength)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength)
         {
             m_PackageHandler = packageHandler;
+            m_ReceiveFilter = receiveFilter;
             m_ReceivedData = new ReceivedData();
             m_MaxPackageLength = maxPackageLength;
         }

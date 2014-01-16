@@ -8,8 +8,8 @@
     <ProjectGuid>{88C9312E-7520-4F6B-BF25-30DA5990D270}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SuperSocket.Protocol</RootNamespace>
-    <AssemblyName>SuperSocket.Protocol</AssemblyName>
+    <RootNamespace>SuperSocket.ProtoBase</RootNamespace>
+    <AssemblyName>SuperSocket.ProtoBase</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="BufferSegmentStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
     <Compile Include="FilterState.cs" />
     <Compile Include="FixedHeaderReceiveFilter.cs" />

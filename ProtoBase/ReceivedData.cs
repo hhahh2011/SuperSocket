@@ -9,7 +9,12 @@ namespace SuperSocket.ProtoBase
     {
         public ArraySegment<byte> Current { get; set; }
 
-        public List<ArraySegment<byte>> PackageData { get; set; }
+        public List<ArraySegment<byte>> PackageData { get; private set; }
+
+        public ReceivedData()
+        {
+            PackageData = new List<ArraySegment<byte>>();
+        }
 
         public int Total
         {
