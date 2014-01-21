@@ -187,8 +187,8 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-
-            socketSession.Initialize(this, new DefaultPipelineProcessor<TRequestInfo>(this, AppServer.Config.MaxRequestLength));
+            var receiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(castedAppServer, this, socketSession.RemoteEndPoint);
+            socketSession.Initialize(this, new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength));
 
             OnInit();
         }

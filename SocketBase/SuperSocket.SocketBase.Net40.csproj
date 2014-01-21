@@ -106,10 +106,12 @@
     <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
-    <Compile Include="Protocol\FilterState.cs" />
-    <Compile Include="Protocol\IReceiveFilterInitializer.cs" />
-    <Compile Include="Protocol\IOffsetAdapter.cs" />
-    <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\TerminatorReceiveFilter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
     <Compile Include="Provider\ProviderKey.cs" />
@@ -126,11 +128,9 @@
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\ReceiveFilterBase.cs" />
     <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
@@ -138,7 +138,6 @@
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
-    <Compile Include="Protocol\IReceiveFilter.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="IConnectionFilter.cs" />
