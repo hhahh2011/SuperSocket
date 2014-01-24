@@ -5,6 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
 using System.Net;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.Udp
 {

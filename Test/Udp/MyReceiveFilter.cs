@@ -2,28 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Udp
 {
     class MyReceiveFilter : IReceiveFilter<MyUdpRequestInfo>
     {
-        public MyUdpRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
-        {
-            rest = 0;
-
-            if (length <= 40)
-                return null;
-
-            var key = Encoding.ASCII.GetString(readBuffer, offset, 4);
-            var sessionID = Encoding.ASCII.GetString(readBuffer, offset + 4, 36);
-
-            var data = Encoding.UTF8.GetString(readBuffer, offset + 40, length - 40);
-
-            return new MyUdpRequestInfo(key, sessionID) { Value = data };
-        }
-
         public int LeftBufferSize
         {
             get { return 0; }
@@ -31,7 +17,7 @@ namespace SuperSocket.Test.Udp
 
         public IReceiveFilter<MyUdpRequestInfo> NextReceiveFilter
         {
-            get { return this; }
+            get { return null; }
         }
 
         /// <summary>
@@ -44,7 +30,23 @@ namespace SuperSocket.Test.Udp
 
         public void Reset()
         {
-            
+            if (State != FilterState.Normal)
+                State = FilterState.Normal;
+        }
+
+        public MyUdpRequestInfo Filter(ReceivedData data, out int rest)
+        {
+            rest = 0;
+
+            var segment = data.Current;
+
+            if (segment.Count <= 40)
+                return null;
+
+            var key = Encoding.ASCII.GetString(segment.Array, segment.Offset, 4);
+            var sessionID = Encoding.ASCII.GetString(segment.Array, segment.Offset + 4, 36);
+
+            return new MyUdpRequestInfo(key, sessionID) { Value = Encoding.UTF8.GetString(segment.Array, segment.Offset + 40, segment.Count - 40) };
         }
     }
 }
