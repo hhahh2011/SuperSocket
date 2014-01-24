@@ -89,7 +89,11 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                requestInfo = this.m_UdpRequestFilter.Filter(receivedData, 0, receivedData.Length, false, out rest);
+                var receiveData = new ReceivedData();
+                receiveData.Current = new ArraySegment<byte>(receivedData);
+                receiveData.PackageData.Add(new ArraySegment<byte>(receivedData));
+
+                requestInfo = this.m_UdpRequestFilter.Filter(receiveData, out rest);
             }
             catch (Exception exc)
             {
