@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace SuperSocket.Protocol
+namespace SuperSocket.ProtoBase
 {
     public sealed class BufferSegmentStream : Stream
     {

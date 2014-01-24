@@ -45,7 +45,7 @@ namespace SuperSocket.ProtoBase
         byte ReadString(int length, Encoding encoding);
     }
 
-    public class BufferSegmentReader
+    public class BufferSegmentReader : IBufferReader
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -87,6 +87,87 @@ namespace SuperSocket.ProtoBase
             m_CurrentSegmentOffset = 0;
             m_Length = 0;
             m_Position = 0;
+        }
+
+
+        public void ReadInt16()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadInt16(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt16()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt16(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Skip(int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadInt32()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadInt32(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt32()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt32(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadInt64()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadInt64(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt64()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadUInt64(bool littleEndian)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte ReadByte()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ReadBytes(byte[] output, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte ReadString(int length, Encoding encoding)
+        {
+            throw new NotImplementedException();
         }
     }
 }
