@@ -37,7 +37,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -72,6 +73,10 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Async.cs" />
+    <Compile Include="Buffer\BufferManager.cs" />
+    <Compile Include="Buffer\BufferPool.cs" />
+    <Compile Include="Buffer\IBufferManager.cs" />
+    <Compile Include="Buffer\IBufferPool.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
@@ -192,6 +197,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
