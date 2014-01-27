@@ -75,6 +75,12 @@ namespace SuperSocket.Common
         /// <param name="item">The item.</param>
         /// <returns></returns>
         bool TryGet(out T item);
+
+
+        /// <summary>
+        /// Shrinks this pool's size.
+        /// </summary>
+        void Shrink();
     }
 
     /// <summary>
@@ -154,6 +160,10 @@ namespace SuperSocket.Common
         private int m_CurrentSourceCount;
 
         private ISmartPoolSourceCreator<T> m_SourceCreator;
+
+        private ConcurrentDictionary<int, byte> m_ItemsDict;
+
+        private ConcurrentDictionary<int, byte> m_RemovedItemsDict;
 
         private int m_MinPoolSize;
 
@@ -250,6 +260,7 @@ namespace SuperSocket.Common
 
             T[] items;
             m_ItemsSource[0] = sourceCreator.Create(minPoolSize, out items);
+            m_ItemsDict = new ConcurrentDictionary<int, byte>(items.Select(i => new KeyValuePair<int, byte>(i.GetHashCode(), 0)));
             m_CurrentSourceCount = 1;
 
             for (var i = 0; i < items.Length; i++)
@@ -268,7 +279,20 @@ namespace SuperSocket.Common
         /// <param name="item">The item.</param>
         public void Push(T item)
         {
-            m_GlobalStack.Push(item);
+            var key = item.GetHashCode();
+
+            if (m_ItemsDict.ContainsKey(key))
+                m_GlobalStack.Push(item);
+
+            if (m_RemovedItemsDict == null)
+                return;
+
+            byte value;
+
+            if (m_RemovedItemsDict.TryRemove(key, out value))
+            {
+                Interlocked.Decrement(ref m_TotalItemsCount);
+            }
         }
 
         bool TryPopWithWait(out T item, int waitTicks)
@@ -331,14 +355,61 @@ namespace SuperSocket.Common
         {
             var newItemsCount = Math.Min(m_TotalItemsCount, m_MaxPoolSize - m_TotalItemsCount);
 
+            var currentSourceCount = (byte)m_CurrentSourceCount;
+
             T[] items;
-            m_ItemsSource[m_CurrentSourceCount] = m_SourceCreator.Create(newItemsCount, out items);
+            m_ItemsSource[currentSourceCount] = m_SourceCreator.Create(newItemsCount, out items);
+
+            for(var i = 0; i < items.Length; i++)
+            {
+                m_ItemsDict.TryAdd(items[i].GetHashCode(), currentSourceCount);
+            }
+
+            m_CurrentSourceCount++;
 
             m_TotalItemsCount += newItemsCount;
 
             for (var i = 0; i < items.Length; i++)
             {
                 m_GlobalStack.Push(items[i]);
+            }
+        }
+
+
+        /// <summary>
+        /// Shrinks this buffer's size.
+        /// </summary>
+        public void Shrink()
+        {
+            var generation = (byte)m_CurrentSourceCount - 1;
+            if (generation == 0)
+                return;
+
+            var shrinThreshold = m_TotalItemsCount * 3 / 4;
+
+            if (m_GlobalStack.Count <= shrinThreshold)
+                return;
+
+            m_CurrentSourceCount--;
+
+            var toBeRemoved = new List<int>(m_TotalItemsCount / 2);
+
+            foreach (var item in m_ItemsDict)
+            {
+                if (item.Value == generation)
+                {
+                    toBeRemoved.Add(item.Key);
+                }
+            }
+
+            if (m_RemovedItemsDict == null)
+                m_RemovedItemsDict = new ConcurrentDictionary<int, byte>();
+
+            foreach (var item in toBeRemoved)
+            {
+                byte value;
+                m_ItemsDict.TryRemove(item, out value);
+                m_RemovedItemsDict.TryAdd(item, 0);
             }
         }
     }
