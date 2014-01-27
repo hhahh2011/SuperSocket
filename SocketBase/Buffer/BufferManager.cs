@@ -70,5 +70,13 @@ namespace SuperSocket.SocketBase.Buffer
                 }
             }
         }
+
+        public void Shrink()
+        {
+            for (var i = 0; i < m_Pools.Length; i++)
+            {
+                m_Pools[i].Shrink();
+            }
+        }
     }
 }

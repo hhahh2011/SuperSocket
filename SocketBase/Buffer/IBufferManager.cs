@@ -10,5 +10,7 @@ namespace SuperSocket.SocketBase.Buffer
         byte[] GetBuffer(int size);
 
         void ReturnBuffer(byte[] buffer);
+
+        void Shrink();
     }
 }
