@@ -16,6 +16,7 @@ using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Buffer;
 
 namespace SuperSocket.SocketBase
 {
@@ -178,6 +179,19 @@ namespace SuperSocket.SocketBase
         public AppServer(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory)
         {
             this.ReceiveFilterFactory = receiveFilterFactory;
+        }
+
+        private IBufferManager m_BufferManager;
+
+        /// <summary>
+        /// Gets the buffer manager.
+        /// </summary>
+        /// <value>
+        /// The buffer manager.
+        /// </value>
+        IBufferManager IAppServer.BufferManager
+        {
+            get { return m_BufferManager; }
         }
 
         /// <summary>
@@ -468,6 +482,8 @@ namespace SuperSocket.SocketBase
 
                 return false;
             }
+
+            m_BufferManager = new SuperSocket.SocketBase.Buffer.BufferManager();
 
             return SetupSocketServer();
         }

@@ -12,6 +12,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Buffer;
 
 namespace SuperSocket.SocketBase
 {
@@ -91,6 +92,15 @@ namespace SuperSocket.SocketBase
         /// Gets the log factory.
         /// </summary>
         ILogFactory LogFactory { get; }
+
+
+        /// <summary>
+        /// Gets the buffer manager.
+        /// </summary>
+        /// <value>
+        /// The buffer manager.
+        /// </value>
+        IBufferManager BufferManager { get; }
     }
 
     /// <summary>
