@@ -17,6 +17,8 @@ namespace SuperSocket.SocketBase.Buffer
 
         private ConcurrentDictionary<int, byte> m_RemovedBufferDict;
 
+        private int m_NextExpandThreshold;
+
         public int BufferSize { get; private set; }
 
         private int m_TotalCount;
@@ -47,6 +49,12 @@ namespace SuperSocket.SocketBase.Buffer
 
             BufferSize = bufferSize;
             m_TotalCount = initialCount;
+            UpdateNextExpandThreshold();
+        }
+
+        private void UpdateNextExpandThreshold()
+        {
+            m_NextExpandThreshold = m_TotalCount / 5; //if only 20% buffer left, we can expand the buffer count
         }
 
         public byte[] GetBuffer()
@@ -55,6 +63,9 @@ namespace SuperSocket.SocketBase.Buffer
 
             if (m_Store.TryPop(out buffer))
             {
+                if (m_Store.Count <= m_NextExpandThreshold)
+                    ThreadPool.QueueUserWorkItem(w => TryExpand());
+                 
                 return buffer;
             }
 
@@ -73,16 +84,23 @@ namespace SuperSocket.SocketBase.Buffer
                     }
                 }
 
+                Console.WriteLine("Failed to GetBuffer");
                 throw new Exception("Failed to GetBuffer");
             }
             else
             {
-                if (Interlocked.CompareExchange(ref m_InExpanding, 1, 0) == 0)
-                    return GetBuffer();
-
-                Expand();
+                TryExpand();
                 return GetBuffer();
             }
+        }
+
+        bool TryExpand()
+        {
+            if (Interlocked.CompareExchange(ref m_InExpanding, 1, 0) != 0)
+                return false;
+
+            Expand();
+            return true;
         }
 
         void Expand()
@@ -107,6 +125,8 @@ namespace SuperSocket.SocketBase.Buffer
             }
 
             m_TotalCount += totalCount;
+            Console.WriteLine("Expanding: {0}", m_TotalCount);
+            UpdateNextExpandThreshold();
             m_InExpanding = 0;
         }
 

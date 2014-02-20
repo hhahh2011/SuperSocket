@@ -13,15 +13,22 @@ namespace SuperSocket.SocketBase.Buffer
 
         private IBufferPool m_LastHitPool;
 
-        public BufferManager()
-        {
-            //4096 = 4k, 8192 = 8k, 16384 = 16k
-            m_Pools = new IBufferPool[]
-            {
-                new BufferPool(4096, 100),
-                new BufferPool(8192, 50),
-                new BufferPool(16384, 10)
+        //4096 = 4k, 8192 = 8k, 16384 = 16k
+        private static BufferPoolInfo[] m_DefaultDefinition = new BufferPoolInfo[]
+            {   new BufferPoolInfo(4096, 200),
+                new BufferPoolInfo(8192, 50),
+                new BufferPoolInfo(16384, 10)
             };
+
+        public BufferManager()
+            : this(m_DefaultDefinition)
+        {
+
+        }
+
+        public BufferManager(BufferPoolInfo[] defintion)
+        {
+            m_Pools = defintion.Select(d => new BufferPool(d.BufferSize, d.InitialCount)).ToArray();
         }
 
         public byte[] GetBuffer(int size)

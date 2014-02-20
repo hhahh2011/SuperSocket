@@ -75,6 +75,7 @@
     <Compile Include="Async.cs" />
     <Compile Include="Buffer\BufferManager.cs" />
     <Compile Include="Buffer\BufferPool.cs" />
+    <Compile Include="Buffer\BufferPoolInfo.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
     <Compile Include="Buffer\IBufferPool.cs" />
     <Compile Include="CommandExecutingContext.cs" />
