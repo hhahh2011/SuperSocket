@@ -63,7 +63,7 @@ namespace SuperSocket.SocketBase.Buffer
 
             if (m_Store.TryPop(out buffer))
             {
-                if (m_Store.Count <= m_NextExpandThreshold)
+                if (m_Store.Count <= m_NextExpandThreshold && m_InExpanding == 0)
                     ThreadPool.QueueUserWorkItem(w => TryExpand());
                  
                 return buffer;
@@ -112,17 +112,12 @@ namespace SuperSocket.SocketBase.Buffer
 
             for (var i = 0; i < totalCount; i++)
             {
-                list[i] = new byte[BufferSize];
-            }
-
-            m_CurrentGeneration++;
-
-            for (var i = 0; i < totalCount; i++)
-            {
-                var buffer = list[i];
+                var buffer = new byte[BufferSize];
                 m_Store.Push(buffer);
                 m_BufferDict.TryAdd(buffer.GetHashCode(), m_CurrentGeneration);
             }
+
+            m_CurrentGeneration++;
 
             m_TotalCount += totalCount;
             Console.WriteLine("Expanding: {0}", m_TotalCount);
