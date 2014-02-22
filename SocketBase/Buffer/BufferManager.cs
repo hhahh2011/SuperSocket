@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Buffer
 {
@@ -14,10 +15,10 @@ namespace SuperSocket.SocketBase.Buffer
         private IBufferPool m_LastHitPool;
 
         //4096 = 4k, 8192 = 8k, 16384 = 16k
-        private static BufferPoolInfo[] m_DefaultDefinition = new BufferPoolInfo[]
-            {   new BufferPoolInfo(4096, 200),
-                new BufferPoolInfo(8192, 50),
-                new BufferPoolInfo(16384, 10)
+        private static BufferPoolConfig[] m_DefaultDefinition = new BufferPoolConfig[]
+            {   new BufferPoolConfig(4096, 200),
+                new BufferPoolConfig(8192, 50),
+                new BufferPoolConfig(16384, 10)
             };
 
         public BufferManager()
@@ -26,9 +27,11 @@ namespace SuperSocket.SocketBase.Buffer
 
         }
 
-        public BufferManager(BufferPoolInfo[] defintion)
+        public BufferManager(IBufferPoolConfig[] defintion)
         {
-            m_Pools = defintion.Select(d => new BufferPool(d.BufferSize, d.InitialCount)).ToArray();
+            m_Pools = (defintion != null && defintion.Length > 0) ?
+                defintion.Select(d => new BufferPool(d.BufferSize, d.InitialCount)).ToArray()
+                : m_DefaultDefinition.Select(d => new BufferPool(d.BufferSize, d.InitialCount)).ToArray();
         }
 
         public byte[] GetBuffer(int size)

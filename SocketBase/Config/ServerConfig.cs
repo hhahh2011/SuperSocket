@@ -356,6 +356,15 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         public IEnumerable<ICommandAssemblyConfig> CommandAssemblies { get; set; }
 
+
+        /// <summary>
+        /// Gets/sets the buffer pools configuration.
+        /// </summary>
+        /// <value>
+        /// The buffer pools configuration.
+        /// </value>
+        public IEnumerable<IBufferPoolConfig> BufferPools { get; set; }
+
         #endregion
     }
 }

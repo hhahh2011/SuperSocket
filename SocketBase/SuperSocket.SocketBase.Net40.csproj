@@ -76,11 +76,12 @@
     <Compile Include="Async.cs" />
     <Compile Include="Buffer\BufferManager.cs" />
     <Compile Include="Buffer\BufferPool.cs" />
-    <Compile Include="Buffer\BufferPoolInfo.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
     <Compile Include="Buffer\IBufferPool.cs" />
     <Compile Include="Buffer\NullBufferManager.cs" />
     <Compile Include="CommandExecutingContext.cs" />
+    <Compile Include="Config\BufferPoolConfig.cs" />
+    <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="ISessionContainer.cs" />

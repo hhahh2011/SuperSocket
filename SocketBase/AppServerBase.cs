@@ -483,7 +483,7 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            m_BufferManager = new SuperSocket.SocketBase.Buffer.BufferManager();
+            m_BufferManager = new SuperSocket.SocketBase.Buffer.BufferManager(Config.BufferPools.ToArray());
 
             return SetupSocketServer();
         }
