@@ -47,6 +47,7 @@ namespace SuperSocket.SocketBase.Buffer
             for(var i = 0; i < initialCount; i++)
             {
                 var buffer = new byte[bufferSize];
+                GCHandle.Alloc(buffer, GCHandleType.Pinned); //Pinned the buffer in the memory
                 list[i] = buffer;
                 m_BufferDict.TryAdd(GetBytesAddress(buffer), m_CurrentGeneration);
             }
@@ -132,6 +133,7 @@ namespace SuperSocket.SocketBase.Buffer
             for (var i = 0; i < totalCount; i++)
             {
                 var buffer = new byte[BufferSize];
+                GCHandle.Alloc(buffer, GCHandleType.Pinned); //Pinned the buffer in the memory
                 m_Store.Push(buffer);
                 Interlocked.Increment(ref m_AvailableCount);
                 m_BufferDict.TryAdd(buffer.GetHashCode(), m_CurrentGeneration);
@@ -197,6 +199,7 @@ namespace SuperSocket.SocketBase.Buffer
             if (m_RemovedBufferDict.TryRemove(key, out value))
             {
                 Interlocked.Decrement(ref m_TotalCount);
+                GCHandle.Alloc(buffer, GCHandleType.Normal); //Change the buffer to Normal from Pinned in the memory
             }
         }
     }
