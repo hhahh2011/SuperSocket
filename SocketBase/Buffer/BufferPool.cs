@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace SuperSocket.SocketBase.Buffer
 {
@@ -13,9 +14,9 @@ namespace SuperSocket.SocketBase.Buffer
 
         private byte m_CurrentGeneration = 0;
 
-        private ConcurrentDictionary<int, byte> m_BufferDict;
+        private ConcurrentDictionary<long, byte> m_BufferDict;
 
-        private ConcurrentDictionary<int, byte> m_RemovedBufferDict;
+        private ConcurrentDictionary<long, byte> m_RemovedBufferDict;
 
         private int m_NextExpandThreshold;
 
@@ -28,9 +29,11 @@ namespace SuperSocket.SocketBase.Buffer
             get { return m_TotalCount; }
         }
 
+        private int m_AvailableCount;
+
         public int AvailableCount
         {
-            get { return m_Store.Count; }
+            get { return m_AvailableCount; }
         }
 
         private int m_InExpanding = 0;
@@ -39,16 +42,20 @@ namespace SuperSocket.SocketBase.Buffer
         {
             byte[][] list = new byte[initialCount][];
 
+            m_BufferDict = new ConcurrentDictionary<long, byte>();
+
             for(var i = 0; i < initialCount; i++)
             {
-                list[i] = new byte[bufferSize];
+                var buffer = new byte[bufferSize];
+                list[i] = buffer;
+                m_BufferDict.TryAdd(GetBytesAddress(buffer), m_CurrentGeneration);
             }
 
             m_Store = new ConcurrentStack<byte[]>(list);
-            m_BufferDict = new ConcurrentDictionary<int, byte>(list.Select(l => new KeyValuePair<int, byte>(l.GetHashCode(), m_CurrentGeneration)));
 
             BufferSize = bufferSize;
             m_TotalCount = initialCount;
+            m_AvailableCount = m_TotalCount;
             UpdateNextExpandThreshold();
         }
 
@@ -57,13 +64,27 @@ namespace SuperSocket.SocketBase.Buffer
             m_NextExpandThreshold = m_TotalCount / 5; //if only 20% buffer left, we can expand the buffer count
         }
 
+        private long GetBytesAddress(byte[] buffer)
+        {
+            unsafe
+            {
+                fixed (byte* bytes = buffer)
+                {
+                    var ptr = new IntPtr(bytes);
+                    return ptr.ToInt64();
+                }
+            }
+        }
+
         public byte[] GetBuffer()
         {
             byte[] buffer;
 
             if (m_Store.TryPop(out buffer))
             {
-                if (m_Store.Count <= m_NextExpandThreshold && m_InExpanding == 0)
+                Interlocked.Decrement(ref m_AvailableCount);
+
+                if (m_AvailableCount <= m_NextExpandThreshold && m_InExpanding == 0)
                     ThreadPool.QueueUserWorkItem(w => TryExpand());
                  
                 return buffer;
@@ -74,18 +95,19 @@ namespace SuperSocket.SocketBase.Buffer
             {
                 var spinWait = new SpinWait();
 
-                for (var i = 0; i < 100; i++)
+                while (true)
                 {
                     spinWait.SpinOnce();
 
                     if (m_Store.TryPop(out buffer))
                     {
+                        Interlocked.Decrement(ref m_AvailableCount);
                         return buffer;
                     }
-                }
 
-                Console.WriteLine("Failed to GetBuffer");
-                throw new Exception("Failed to GetBuffer");
+                    if (m_InExpanding != 1)
+                        return GetBuffer();
+                }
             }
             else
             {
@@ -107,20 +129,17 @@ namespace SuperSocket.SocketBase.Buffer
         {
             var totalCount = m_TotalCount;
 
-            //double the size
-            byte[][] list = new byte[totalCount][];
-
             for (var i = 0; i < totalCount; i++)
             {
                 var buffer = new byte[BufferSize];
                 m_Store.Push(buffer);
+                Interlocked.Increment(ref m_AvailableCount);
                 m_BufferDict.TryAdd(buffer.GetHashCode(), m_CurrentGeneration);
             }
 
             m_CurrentGeneration++;
 
             m_TotalCount += totalCount;
-            Console.WriteLine("Expanding: {0}", m_TotalCount);
             UpdateNextExpandThreshold();
             m_InExpanding = 0;
         }
@@ -133,12 +152,12 @@ namespace SuperSocket.SocketBase.Buffer
 
             var shrinThreshold = m_TotalCount * 3 / 4;
 
-            if (m_Store.Count <= shrinThreshold)
+            if (m_AvailableCount <= shrinThreshold)
                 return;
 
             m_CurrentGeneration = (byte)(generation - 1);
 
-            var toBeRemoved = new List<int>(m_TotalCount / 2);
+            var toBeRemoved = new List<long>(m_TotalCount / 2);
 
             foreach (var item in m_BufferDict)
             {
@@ -149,7 +168,7 @@ namespace SuperSocket.SocketBase.Buffer
             }
 
             if (m_RemovedBufferDict == null)
-                m_RemovedBufferDict = new ConcurrentDictionary<int, byte>();
+                m_RemovedBufferDict = new ConcurrentDictionary<long, byte>();
 
             foreach (var item in toBeRemoved)
             {
@@ -161,11 +180,12 @@ namespace SuperSocket.SocketBase.Buffer
 
         public void ReturnBuffer(byte[] buffer)
         {
-            var key = buffer.GetHashCode();
+            var key = GetBytesAddress(buffer);
 
             if (m_BufferDict.ContainsKey(key))
             {
                 m_Store.Push(buffer);
+                Interlocked.Increment(ref m_AvailableCount);
                 return;
             }
 
