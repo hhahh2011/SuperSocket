@@ -75,6 +75,7 @@
     <Compile Include="AppDomainSocketServerTest.cs" />
     <Compile Include="BootstrapTest.cs" />
     <Compile Include="BootstrapTestBase.cs" />
+    <Compile Include="BufferManagerTest.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
     <Compile Include="Command\ADDR.cs" />
