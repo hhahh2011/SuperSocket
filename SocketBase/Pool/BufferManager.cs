@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Config;
 
-namespace SuperSocket.SocketBase.Buffer
+namespace SuperSocket.SocketBase.Pool
 {
     public class BufferManager : IBufferManager
     {
@@ -39,7 +39,7 @@ namespace SuperSocket.SocketBase.Buffer
             var lastHitPool = m_LastHitPool;
 
             if (lastHitPool != null && lastHitPool.BufferSize >= size)
-                return lastHitPool.GetBuffer();
+                return lastHitPool.Get();
 
             for(var i = 0; i < m_Pools.Length; i++)
             {
@@ -48,7 +48,7 @@ namespace SuperSocket.SocketBase.Buffer
                 if(pool.BufferSize >= size)
                 {
                     m_LastHitPool = pool;
-                    return pool.GetBuffer();
+                    return pool.Get();
                 }
             }
 
@@ -64,7 +64,7 @@ namespace SuperSocket.SocketBase.Buffer
 
             if (lastHitPool != null && lastHitPool.BufferSize == size)
             {
-                lastHitPool.ReturnBuffer(buffer);
+                lastHitPool.Return(buffer);
                 return;
             }
 
@@ -75,7 +75,7 @@ namespace SuperSocket.SocketBase.Buffer
                 if(pool.BufferSize == size)
                 {
                     m_LastHitPool = pool;
-                    pool.ReturnBuffer(buffer);
+                    pool.Return(buffer);
                     return;
                 }
             }

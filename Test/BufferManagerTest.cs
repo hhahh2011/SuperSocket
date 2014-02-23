@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SuperSocket.SocketBase.Buffer;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.Test

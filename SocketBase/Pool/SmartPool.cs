@@ -3,24 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
-using System.Threading;
 using System.Runtime.InteropServices;
+using System.Threading;
 
-namespace SuperSocket.SocketBase.Buffer
+namespace SuperSocket.SocketBase.Pool
 {
-    class BufferPool : IBufferPool
+    struct PoolItemState
     {
-        private ConcurrentStack<byte[]> m_Store;
+        public GCHandle GCHandle { get; set; }
+
+        public byte Generation { get; set; }
+    }
+
+    class SmartPool<T> : IPool<T>
+    {
+        private ConcurrentStack<T> m_Store;
+
+        private IPoolItemCreator<T> m_ItemCreator;
 
         private byte m_CurrentGeneration = 0;
 
-        private ConcurrentDictionary<long, byte> m_BufferDict;
+        private ConcurrentDictionary<T, PoolItemState> m_BufferDict;
 
-        private ConcurrentDictionary<long, byte> m_RemovedBufferDict;
+        private ConcurrentDictionary<T, GCHandle> m_RemovedBufferDict;
 
         private int m_NextExpandThreshold;
-
-        public int BufferSize { get; private set; }
 
         private int m_TotalCount;
 
@@ -38,23 +45,25 @@ namespace SuperSocket.SocketBase.Buffer
 
         private int m_InExpanding = 0;
 
-        public BufferPool(int bufferSize, int initialCount)
+        public SmartPool(int initialCount, IPoolItemCreator<T> itemCreator)
         {
-            byte[][] list = new byte[initialCount][];
+            m_ItemCreator = itemCreator;
+            m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
 
-            m_BufferDict = new ConcurrentDictionary<long, byte>();
+            var list = new List<T>(initialCount);
 
-            for(var i = 0; i < initialCount; i++)
+            foreach(var item in itemCreator.Create(initialCount))
             {
-                var buffer = new byte[bufferSize];
-                GCHandle.Alloc(buffer, GCHandleType.Pinned); //Pinned the buffer in the memory
-                list[i] = buffer;
-                m_BufferDict.TryAdd(GetBytesAddress(buffer), m_CurrentGeneration);
+                var handle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
+                PoolItemState state = new PoolItemState();
+                state.GCHandle = handle;
+                state.Generation = m_CurrentGeneration;
+                m_BufferDict.TryAdd(item, state);
+                list.Add(item);
             }
 
-            m_Store = new ConcurrentStack<byte[]>(list);
+            m_Store = new ConcurrentStack<T>(list);
 
-            BufferSize = bufferSize;
             m_TotalCount = initialCount;
             m_AvailableCount = m_TotalCount;
             UpdateNextExpandThreshold();
@@ -65,30 +74,18 @@ namespace SuperSocket.SocketBase.Buffer
             m_NextExpandThreshold = m_TotalCount / 5; //if only 20% buffer left, we can expand the buffer count
         }
 
-        private long GetBytesAddress(byte[] buffer)
+        public T Get()
         {
-            unsafe
-            {
-                fixed (byte* bytes = buffer)
-                {
-                    var ptr = new IntPtr(bytes);
-                    return ptr.ToInt64();
-                }
-            }
-        }
+            T item;
 
-        public byte[] GetBuffer()
-        {
-            byte[] buffer;
-
-            if (m_Store.TryPop(out buffer))
+            if (m_Store.TryPop(out item))
             {
                 Interlocked.Decrement(ref m_AvailableCount);
 
                 if (m_AvailableCount <= m_NextExpandThreshold && m_InExpanding == 0)
                     ThreadPool.QueueUserWorkItem(w => TryExpand());
-                 
-                return buffer;
+
+                return item;
             }
 
             //In expanding
@@ -100,20 +97,20 @@ namespace SuperSocket.SocketBase.Buffer
                 {
                     spinWait.SpinOnce();
 
-                    if (m_Store.TryPop(out buffer))
+                    if (m_Store.TryPop(out item))
                     {
                         Interlocked.Decrement(ref m_AvailableCount);
-                        return buffer;
+                        return item;
                     }
 
                     if (m_InExpanding != 1)
-                        return GetBuffer();
+                        return Get();
                 }
             }
             else
             {
                 TryExpand();
-                return GetBuffer();
+                return Get();
             }
         }
 
@@ -130,13 +127,17 @@ namespace SuperSocket.SocketBase.Buffer
         {
             var totalCount = m_TotalCount;
 
-            for (var i = 0; i < totalCount; i++)
+            foreach (var item in m_ItemCreator.Create(totalCount))
             {
-                var buffer = new byte[BufferSize];
-                GCHandle.Alloc(buffer, GCHandleType.Pinned); //Pinned the buffer in the memory
-                m_Store.Push(buffer);
+                var handle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
+
+                m_Store.Push(item);
                 Interlocked.Increment(ref m_AvailableCount);
-                m_BufferDict.TryAdd(buffer.GetHashCode(), m_CurrentGeneration);
+
+                PoolItemState state = new PoolItemState();
+                state.GCHandle = handle;
+                state.Generation = m_CurrentGeneration;
+                m_BufferDict.TryAdd(item, state);
             }
 
             m_CurrentGeneration++;
@@ -159,34 +160,32 @@ namespace SuperSocket.SocketBase.Buffer
 
             m_CurrentGeneration = (byte)(generation - 1);
 
-            var toBeRemoved = new List<long>(m_TotalCount / 2);
+            var toBeRemoved = new List<T>(m_TotalCount / 2);
 
             foreach (var item in m_BufferDict)
             {
-                if (item.Value == generation)
+                if (item.Value.Generation == generation)
                 {
                     toBeRemoved.Add(item.Key);
                 }
             }
 
             if (m_RemovedBufferDict == null)
-                m_RemovedBufferDict = new ConcurrentDictionary<long, byte>();
+                m_RemovedBufferDict = new ConcurrentDictionary<T, GCHandle>();
 
             foreach (var item in toBeRemoved)
             {
-                byte value;
-                m_BufferDict.TryRemove(item, out value);
-                m_RemovedBufferDict.TryAdd(item, 0);
+                PoolItemState state;
+                if (m_BufferDict.TryRemove(item, out state))
+                    m_RemovedBufferDict.TryAdd(item, state.GCHandle);
             }
         }
 
-        public void ReturnBuffer(byte[] buffer)
+        public void Return(T item)
         {
-            var key = GetBytesAddress(buffer);
-
-            if (m_BufferDict.ContainsKey(key))
+            if (m_BufferDict.ContainsKey(item))
             {
-                m_Store.Push(buffer);
+                m_Store.Push(item);
                 Interlocked.Increment(ref m_AvailableCount);
                 return;
             }
@@ -194,12 +193,12 @@ namespace SuperSocket.SocketBase.Buffer
             if (m_RemovedBufferDict == null)
                 return;
 
-            byte value;
+            GCHandle handle;
 
-            if (m_RemovedBufferDict.TryRemove(key, out value))
+            if (m_RemovedBufferDict.TryRemove(item, out handle))
             {
                 Interlocked.Decrement(ref m_TotalCount);
-                GCHandle.Alloc(buffer, GCHandleType.Normal); //Change the buffer to Normal from Pinned in the memory
+                handle.Free(); //Change the buffer to Normal from Pinned in the memory
             }
         }
     }

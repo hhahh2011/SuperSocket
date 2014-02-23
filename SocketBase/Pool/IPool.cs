@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SuperSocket.SocketBase.Buffer
+namespace SuperSocket.SocketBase.Pool
 {
-    interface IBufferPool
+    interface IPool<T>
     {
-        int BufferSize { get; }
-
         int TotalCount { get; }
 
         int AvailableCount { get; }
 
-        byte[] GetBuffer();
+        T Get();
 
-        void ReturnBuffer(byte[] buffer);
+        void Return(T item);
 
         void Shrink();
     }

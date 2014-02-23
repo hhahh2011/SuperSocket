@@ -16,7 +16,7 @@ using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Security;
-using SuperSocket.SocketBase.Buffer;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
@@ -483,7 +483,7 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            m_BufferManager = new SuperSocket.SocketBase.Buffer.BufferManager(Config.BufferPools.ToArray());
+            m_BufferManager = new Pool.BufferManager(Config.BufferPools.ToArray());
 
             return SetupSocketServer();
         }

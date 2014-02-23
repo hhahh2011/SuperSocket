@@ -74,11 +74,14 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Async.cs" />
-    <Compile Include="Buffer\BufferManager.cs" />
-    <Compile Include="Buffer\BufferPool.cs" />
-    <Compile Include="Buffer\IBufferManager.cs" />
-    <Compile Include="Buffer\IBufferPool.cs" />
-    <Compile Include="Buffer\NullBufferManager.cs" />
+    <Compile Include="Pool\BufferItemCreator.cs" />
+    <Compile Include="Pool\BufferManager.cs" />
+    <Compile Include="Pool\BufferPool.cs" />
+    <Compile Include="Pool\IBufferManager.cs" />
+    <Compile Include="Pool\IBufferPool.cs" />
+    <Compile Include="Pool\IPool.cs" />
+    <Compile Include="Pool\IPoolItemCreator.cs" />
+    <Compile Include="Pool\NullBufferManager.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Config\BufferPoolConfig.cs" />
     <Compile Include="Config\IBufferPoolConfig.cs" />
@@ -115,6 +118,7 @@
     <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
+    <Compile Include="Pool\SmartPool.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -12,7 +12,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
-using SuperSocket.SocketBase.Buffer;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
