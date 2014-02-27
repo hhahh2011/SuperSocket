@@ -66,16 +66,21 @@ namespace SuperSocket.SocketBase.Config
             this.OptionElements = serverConfig.OptionElements;
 
             if (serverConfig.Certificate != null)
-                this.Certificate = serverConfig.Certificate.CopyPropertiesTo(new CertificateConfig());
+                this.Certificate = serverConfig.Certificate.MakeCopy<CertificateConfig>();
 
             if (serverConfig.Listeners != null && serverConfig.Listeners.Any())
             {
-                this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig())).OfType<ListenerConfig>().ToArray();
+                this.Listeners = serverConfig.Listeners.MakeCopy<ListenerConfig>();
             }
 
             if (serverConfig.CommandAssemblies != null && serverConfig.CommandAssemblies.Any())
             {
-                this.CommandAssemblies = serverConfig.CommandAssemblies.Select(c => c.CopyPropertiesTo(new CommandAssemblyConfig())).OfType<CommandAssemblyConfig>().ToArray();
+                this.CommandAssemblies = serverConfig.CommandAssemblies.MakeCopy<CommandAssemblyConfig>();
+            }
+
+            if (serverConfig.BufferPools != null && serverConfig.BufferPools.Any())
+            {
+                this.BufferPools = serverConfig.BufferPools.MakeCopy<BufferPoolConfig>();
             }
         }
 

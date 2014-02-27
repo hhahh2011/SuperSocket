@@ -78,7 +78,7 @@ namespace SuperSocket.Test
             GC.Collect();
             GC.WaitForFullGCComplete();
 
-            var bufferManager = new BufferManager(new BufferPoolConfig[] { new BufferPoolConfig(bufferSize, 20000) });
+            var bufferManager = new BufferManager(new BufferPoolConfig[] { new BufferPoolConfig(bufferSize, 1000) });
 
             watch.Start();
 
