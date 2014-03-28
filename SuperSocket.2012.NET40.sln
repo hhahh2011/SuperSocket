@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Agent.Net40", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ProtoBase.Net40", "ProtoBase\SuperSocket.ProtoBase.Net40.csproj", "{88C9312E-7520-4F6B-BF25-30DA5990D270}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Example", "SuperSocket.Example\SuperSocket.Example.csproj", "{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,12 @@ Global
 		{88C9312E-7520-4F6B-BF25-30DA5990D270}.Release|Any CPU.Build.0 = Release|Any CPU
 		{88C9312E-7520-4F6B-BF25-30DA5990D270}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{88C9312E-7520-4F6B-BF25-30DA5990D270}.Test|Any CPU.Build.0 = Release|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{84732587-648C-47D9-B9D6-3D4E1D4DEF7C}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
