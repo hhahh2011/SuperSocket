@@ -132,10 +132,6 @@
       <Project>{55BAA051-CE62-4D4A-81B6-68B042CC78E9}</Project>
       <Name>SuperSocket.Dlr.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Facility\SuperSocket.Facility.Net40.csproj">
-      <Project>{01987bac-c498-44dd-b274-62ea2506b51d}</Project>
-      <Name>SuperSocket.Facility.Net40</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net40.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SuperSocket.SocketBase.Net40</Name>
